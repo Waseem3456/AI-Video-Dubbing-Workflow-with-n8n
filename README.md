@@ -133,3 +133,11 @@ MIT License — feel free to use, modify, and share.
 
 ElevenLabs for the powerful dubbing API
 n8n for the open-source workflow automation platform
+
+📬 Contact
+
+Built by Waseem — n8n Workflow Automation Specialist
+
+Fiverr: https://www.fiverr.com/s/EgGx0Xq 
+GitHub: https://github.com/Waseem3456?tab=repositories 
+Email: wasim.k.faseeh@gmail.com
