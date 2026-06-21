@@ -1,0 +1,298 @@
+{
+  "name": "Translate Videos Using ElevenLabs Dubbing",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3c89b6f5-5261-48e8-9bf1-3d0090f80ce0",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -400,
+        720
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.expected_duration_sec + 120 }}"
+      },
+      "id": "7aa4296e-34b6-4a32-a163-7b869f760cd2",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -176,
+        1056
+      ],
+      "webhookId": "2dd16cb1-9624-4a94-a8b5-f0ea8f6a0c8d",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/dubbing",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "target_lang",
+              "value": "en"
+            },
+            {
+              "name": "source_lang",
+              "value": "ur"
+            },
+            {
+              "name": "num_speakers",
+              "value": "0"
+            },
+            {
+              "name": "watermark",
+              "value": "=true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ec8d8340-923e-4d74-9b08-d36c6197a808",
+      "name": "Elevenlabs Dubbing",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        368,
+        720
+      ],
+      "typeVersion": 4.3,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ADvzkSTB576RZazc",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.elevenlabs.io/v1/dubbing/{{ $('Elevenlabs Dubbing').item.json.dubbing_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "ece12f27-50e1-432e-adf4-b32a791ada5f",
+      "name": "Get Dubbing ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        128,
+        1056
+      ],
+      "typeVersion": 4.3,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ADvzkSTB576RZazc",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.elevenlabs.io/v1/dubbing/{{ $json.dubbing_id }}/audio/{{ $json.target_languages[0] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "83df506c-e539-4c4e-8b6b-6be8d9e86457",
+      "name": "Download final Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        368,
+        1056
+      ],
+      "typeVersion": 4.3,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ADvzkSTB576RZazc",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1nKLbp4wy6pQ3dQ0oj7HqoXdJSrP8G_Et",
+          "mode": "list",
+          "cachedResultName": "N8n",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1nKLbp4wy6pQ3dQ0oj7HqoXdJSrP8G_Et"
+        },
+        "options": {}
+      },
+      "id": "b361759d-9ece-4aae-9f04-8fe662ed9180",
+      "name": "Upload file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        656,
+        1056
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "b36jdcV7p26jcOGc",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "fiverrn8n.mp4",
+        "limit": 1,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -144,
+        720
+      ],
+      "id": "203a293a-54bc-4b0f-8170-4c70bced3ab8",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "b36jdcV7p26jcOGc",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        112,
+        720
+      ],
+      "id": "d591cff5-c40d-4cfb-a123-df8290e4c412",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "b36jdcV7p26jcOGc",
+          "name": "Google Drive account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Dubbing ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Dubbing ID": {
+      "main": [
+        [
+          {
+            "node": "Download final Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Elevenlabs Dubbing": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download final Video": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Elevenlabs Dubbing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "55f0bcc5-ab87-4ad8-9068-073cf538c97d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "23e92b8387d699c04cb608cc58c786038a4d2e10462316db53002e7eb55d60f1"
+  },
+  "id": "HTAO4Kggi6mfKarl",
+  "tags": []
+}
